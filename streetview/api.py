@@ -43,6 +43,7 @@ def get_streetview(
     heading: int = 0,
     fov: int = 120,
     pitch: int = 0,
+    auto_heading: bool = False
 ) -> Image.Image:
     """
     Get an image using the official API. These are not panoramas.
@@ -61,17 +62,28 @@ def get_streetview(
         height (int): Image height (max 640 for non-premium downloads).
         fov (int): Image field-of-view.
         pitch (int): Image pitch.
+        auto_heading (bool): a value of heading is calculated that directs the camera towards the specified location, 
+        from the point at which the closest photograph was taken
     """
 
     url = "https://maps.googleapis.com/maps/api/streetview"
-    params: Dict[str, Union[str, int]] = {
+    if auto_heading is True:
+        params: Dict[str, Union[str, int]] = {
         "size": "%dx%d" % (width, height),
         "fov": fov,
         "pitch": pitch,
-        "heading": heading,
         "pano": pano_id,
         "key": api_key,
     }
+    else:
+        params: Dict[str, Union[str, int]] = {
+            "size": "%dx%d" % (width, height),
+            "fov": fov,
+            "pitch": pitch,
+            "heading": heading,
+            "pano": pano_id,
+            "key": api_key,
+        }
 
     response = requests.get(url, params=params, stream=True)
     img = Image.open(BytesIO(response.content))
